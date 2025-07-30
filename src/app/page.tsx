@@ -30,8 +30,8 @@ export default function Home() {
       width: "w-7/12",
     },
     {
-      title: "Airport Code",
-      stat: planeData?.iata_code,
+      title: `${planeData.whichOne} Destination`,
+      stat: planeData?.Destination,
       width: "w-5/12",
     },
   ];
