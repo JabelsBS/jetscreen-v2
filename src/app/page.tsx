@@ -16,22 +16,22 @@ export default function Home() {
   const splideRef = useRef<any>(null);
 
   // Code to determine if we use the origin or destination:
-  // let planeData = statePlaneData?.origin || {}
-  // planeData.whichOne = "Origin"
-  // if (LOCAL_AIRPORT_LIST.includes(statePlaneData?.origin?.iata_code)) {
-  //   planeData = statePlaneData?.destination
-  //   planeData.whichOne = "Destination"
-  // }
+  let planeData = statePlaneData?.origin || {}
+  planeData.whichOne = "Origin"
+  if (LOCAL_AIRPORT_LIST.includes(statePlaneData?.origin?.iata_code)) {
+    planeData = statePlaneData?.destination
+    planeData.whichOne = "Destination"
+  }
 
   const planeSlide = [
     {
       title: `${planeData.origin} City`,
-      stat: planeData?.municipality,
+      stat: planeData.origin.municipality,
       width: "w-7/12",
     },
     {
       title: `${planeData.destination} City`,
-      stat: planeData?.municipality,
+      stat: planeData.destination.municipality,
       width: "w-5/12",
     },
   ];
