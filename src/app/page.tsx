@@ -31,7 +31,7 @@ export default function Home() {
     },
     {
       title: `${planeData.whichOne} Destination`,
-      stat: planeData?.Destination,
+      stat: planeData?.destination,
       width: "w-5/12",
     },
   ];
