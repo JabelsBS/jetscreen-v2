@@ -8,7 +8,7 @@ export const PlaneIcon = () => {
       height="150"
       viewBox="0 0 2501 2501"
       fill="white"
-      transform="rotate(90 1250.5 1250.5)"
+      transform="rotate(90 0 0)"
     >
       <path
         fillRule="evenodd"
