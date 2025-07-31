@@ -115,6 +115,7 @@ export default function Home() {
     return () => clearInterval(planeInterval);
   }, []);
 
+
   return (
     <div className="min-h-screen w-full bg-black">
       {statePlaneData && <PlaneAnimation key={statePlaneData?.callsign} />}
@@ -124,6 +125,7 @@ export default function Home() {
           slides={planeSlide}
           splideRef={splideRef}
         />
+      )}
     </div>
   );
 }
