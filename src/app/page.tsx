@@ -99,12 +99,12 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(timeInterval);
-  }, []);
+  // useEffect(() => {
+  //   const timeInterval = setInterval(() => {
+  //     setCurrentTime(new Date().toLocaleTimeString());
+  //   }, 1000);
+  //   return () => clearInterval(timeInterval);
+  // }, []);
 
   useEffect(() => {
     getPlanesAround();
