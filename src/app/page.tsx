@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import SlideHolder from "./components/SlideHolder";
 import { PlaneAnimation } from "./components/PlaneAnimation";
+import { PlaneIcon } from "./components/PlaneIcon";
 import { haversineDistance } from "./lib/haversine";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -23,6 +24,10 @@ export default function Home() {
           title: "Origin City",
           stat: statePlaneData?.origin?.municipality,
           textSize: "text-7xl",
+        },
+        {
+          stat: <PlaneIcon />,
+          fullWidth: true,
         },
         {
           title: "Destination City",
