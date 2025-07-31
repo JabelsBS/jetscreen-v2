@@ -23,15 +23,15 @@ export default function Home() {
       width: "w-6/12",
     },
     {
+      title: `Flight`,
+      stat: statePlaneData?.callsign,
+      width:"w-4/12 text-x1 h-20"
+    },
+    {
       title: `Destination City`,
       stat: statePlaneData?.destination?.municipality,
       width: "w-6/12",
     },
-    {
-      title: `Flight`,
-      stat: statePlaneData?.callsign,
-      width:"w-4/12"
-    }
   ];
 
   const slides = [
