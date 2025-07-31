@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import SlideHolder from "./components/SlideHolder";
 import { PlaneAnimation } from "./components/PlaneAnimation";
 import { haversineDistance } from "./lib/haversine";
+import { AnimatePresence, motion } from "framer-motion";
 
 const CENTER_LAT = parseFloat(process.env.NEXT_PUBLIC_CENTER_LAT || "0");
 const CENTER_LON = parseFloat(process.env.NEXT_PUBLIC_CENTER_LON || "0");
@@ -115,17 +116,25 @@ export default function Home() {
     return () => clearInterval(planeInterval);
   }, []);
 
-
   return (
     <div className="min-h-screen w-full bg-black">
-      {statePlaneData && <PlaneAnimation key={statePlaneData?.callsign} />}
-      {statePlaneData && planeSlide.length > 0 && (
-        <SlideHolder
-          key={statePlaneData?.callsign}
-          slides={planeSlide}
-          splideRef={splideRef}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {statePlaneData && (
+          <motion.div
+            key={statePlaneData?.callsign}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <PlaneAnimation />
+            <SlideHolder
+              slides={planeSlide}
+              splideRef={splideRef}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
