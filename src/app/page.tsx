@@ -7,11 +7,11 @@ import { haversineDistance } from "./lib/haversine";
 const CENTER_LAT = parseFloat(process.env.NEXT_PUBLIC_CENTER_LAT || "0");
 const CENTER_LON = parseFloat(process.env.NEXT_PUBLIC_CENTER_LON || "0");
 const RADIUS_KM = parseFloat(process.env.NEXT_PUBLIC_RADIUS_KM || "0");
-const LOCAL_AIRPORT_LIST = (process.env.NEXT_PUBLIC_LOCAL_AIRPORT_CODES || "").split(",");
+// const LOCAL_AIRPORT_LIST = (process.env.NEXT_PUBLIC_LOCAL_AIRPORT_CODES || "").split(",");
 
 export default function Home() {
   const [statePlaneData, setStatePlaneData] = useState<any>(null);
-  const [currentTime, setCurrentTime] = useState<string>("");
+  // const [currentTime, setCurrentTime] = useState<string>("");
   const currentCallsign = useRef<string>("");
   const splideRef = useRef<any>(null);
 
@@ -35,13 +35,13 @@ export default function Home() {
   ];
 
 
-  const slides = [
-    {
-      title: "Current Time",
-      stat: currentTime,
-      width: "w-full",
-    },
-  ];
+  // const slides = [
+  //   {
+  //     title: "Current Time",
+  //     stat: currentTime,
+  //     width: "w-full",
+  //   },
+  // ];
 
   const getPlanesAround = async () => {
     try {
@@ -97,12 +97,12 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(timeInterval);
-  }, []);
+  // useEffect(() => {
+  //   const timeInterval = setInterval(() => {
+  //     setCurrentTime(new Date().toLocaleTimeString());
+  //   }, 1000);
+  //   return () => clearInterval(timeInterval);
+  // }, []);
 
   useEffect(() => {
     getPlanesAround();
