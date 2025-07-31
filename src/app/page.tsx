@@ -27,6 +27,11 @@ export default function Home() {
       stat: statePlaneData?.destination?.municipality,
       width: "w-6/12",
     },
+    {
+      title: `Flight`,
+      stat: statePlaneData?.callsign,
+      width:"w-4/12"
+    }
   ];
 
   const slides = [
