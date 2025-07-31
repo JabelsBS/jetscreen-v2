@@ -30,7 +30,7 @@ export default function Home() {
     {
     title: `Flight`,
     stat: statePlaneData?.callsign,
-    width:"w-full text-center text-sm mt-4",
+    width:"w-full text-center text-sm mt-4 block",
     },
   ];
 
