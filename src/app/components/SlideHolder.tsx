@@ -11,13 +11,13 @@ type Props = {
 
 const options = {
   type: "loop",
-  arrows: true,
+  arrows: false,
   direction: "ttb",
   height: "100vh",
   autoplay: true,
   interval: 10000,
   speed: 1000,
-  pagination: false,
+  pagination: true,
 };
 
 const SlideHolder = ({ slides, splideRef }: Props) => {
