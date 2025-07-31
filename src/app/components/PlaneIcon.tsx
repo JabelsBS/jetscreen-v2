@@ -12,7 +12,7 @@ export const PlaneIcon = () => {
     >
       <defs>
         <filter id="planeShadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="10" dy="10" stdDeviation="15" floodColor="black" floodOpacity="0.4" />
+          <feDropShadow dx="10" dy="10" stdDeviation="15" floodColor="white" floodOpacity="0.4" />
         </filter>
       </defs>
       <g filter="url(#planeShadow)">
