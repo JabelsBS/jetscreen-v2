@@ -22,11 +22,11 @@ export default function Home() {
       stat: statePlaneData?.origin?.municipality,
       width: "w-6/12",
     },
-    {
-      title: `Flight`,
-      stat: statePlaneData?.callsign,
-      width:"w-4/12 text-x1 top-02"
-    },
+    // {
+    //   title: `Flight`,
+    //   stat: statePlaneData?.callsign,
+    //   width:"w-4/12 text-x1 top-02"
+    // },
     {
       title: `Destination City`,
       stat: statePlaneData?.destination?.municipality,
