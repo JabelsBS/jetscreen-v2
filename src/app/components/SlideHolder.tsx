@@ -46,7 +46,7 @@ const SlideHolder = ({ slides, splideRef }: Props) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <span className={classNames("font-semibold text-center", item.textSize ? item.textSize : "text-6xl")}>
+              <span className={classNames("font-semibold text-center break-words max-w-full", item.textSize ? item.textSize : "text-6xl")}>
                 {item.stat}
               </span>
               <div className="mt-4 text-sm">
