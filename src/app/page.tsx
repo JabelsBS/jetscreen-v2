@@ -21,12 +21,12 @@ export default function Home() {
   const planeSlide = statePlaneData
     ? [
         {
-          title: "Origin City",
+          title: statePlaneData?.origin?.country_name,
           stat: statePlaneData?.origin?.municipality,
           textSize: "text-7xl",
         },
         {
-          title: "Destination City",
+          title: statePlaneData?.destination?.country_name,
           stat: statePlaneData?.destination?.municipality,
           textSize: "text-7xl",
         },
