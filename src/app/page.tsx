@@ -117,11 +117,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full bg-black">
-      {statePlaneData && <PlaneAnimation />}
-      <SlideHolder
-        slides={planeSlide}
-        splideRef={splideRef}
-      />
+      {statePlaneData && <PlaneAnimation key={statePlaneData?.callsign} />}
+      {statePlaneData && planeSlide.length > 0 && (
+        <SlideHolder
+          key={statePlaneData?.callsign}
+          slides={planeSlide}
+          splideRef={splideRef}
+        />
     </div>
   );
 }
