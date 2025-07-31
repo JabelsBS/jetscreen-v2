@@ -17,7 +17,7 @@ const options = {
   autoplay: true,
   interval: 10000,
   speed: 1000,
-  pagination: true,
+  pagination: false,
 };
 
 const SlideHolder = ({ slides, splideRef }: Props) => {
