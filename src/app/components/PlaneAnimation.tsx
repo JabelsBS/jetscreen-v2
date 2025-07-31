@@ -20,7 +20,7 @@ export const PlaneAnimation = ({}: PlaneAnimationProps) => {
                   <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
                 </filter>
               </defs>
-              <g id="airplane" transform="translate(-20,0) scale(0.04)">
+              <g id="airplane" transform="translate(-18,0) scale(0.04)">
                 <path
                   fillRule="evenodd"
                   fillOpacity="1"
@@ -38,7 +38,7 @@ export const PlaneAnimation = ({}: PlaneAnimationProps) => {
                 />
               </g>
               <g id="shadow" 
-                transform="translate(0,0.5) scale(0.025)"
+                transform="translate(10,10) scale(0.03)"
                 filter="url(#f1)"
               >
                 <path
