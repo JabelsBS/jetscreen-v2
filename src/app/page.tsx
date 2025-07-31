@@ -25,12 +25,12 @@ export default function Home() {
 
   const planeSlide = [
     {
-      title: `${planeData.origin} City`,
+      title: `Origin City`,
       stat: planeData?.origin?.municipality,
       width: "w-7/12",
     },
     {
-      title: `${planeData.destination} City`,
+      title: `Destination City`,
       stat: planeData?.destination?.municipality,
       width: "w-5/12",
     },
