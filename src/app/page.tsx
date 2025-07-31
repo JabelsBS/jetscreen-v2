@@ -25,7 +25,7 @@ export default function Home() {
     {
       title: `Flight`,
       stat: statePlaneData?.callsign,
-      width:"w-4/12 text-x1 h-20"
+      width:"w-4/12 text-x1 top-02"
     },
     {
       title: `Destination City`,
