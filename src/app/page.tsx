@@ -117,7 +117,7 @@ export default function Home() {
     <div className="min-h-screen w-full bg-black">
       {statePlaneData && <PlaneAnimation />}
       <SlideHolder
-        slides={statePlaneData ? planeSlide : slides} // : slides
+        slides={planeSlide}
         splideRef={splideRef}
       />
     </div>
