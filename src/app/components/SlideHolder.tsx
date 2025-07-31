@@ -11,7 +11,7 @@ type Props = {
 
 const options = {
   type: "loop",
-  arrows: false,
+  arrows: true,
   direction: "ttb",
   height: "100vh",
   autoplay: true,
