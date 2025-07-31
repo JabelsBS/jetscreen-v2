@@ -4,8 +4,16 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { classNames } from "../lib/classNames";
 
+type SlideItem = {
+  title: string;
+  stat: string | undefined;
+  width?: string;
+  fullWidth?: boolean;   // Wenn true: col-span-2 (volle Breite)
+  textSize?: string;     // z.B. "text-sm", "text-xl" etc.
+};
+
 type Props = {
-  slides: any;
+  slides: SlideItem[];
   splideRef: any;
 };
 
@@ -22,31 +30,29 @@ const options = {
 
 const SlideHolder = ({ slides, splideRef }: Props) => {
   return (
-    <>
-      {/* @ts-expect-error Server Component */}
-      <Splide options={options} ref={splideRef}>
-        {slides.map((slide: any, index: number) => {
-          return (
-            <SplideSlide key={index}>
-              <div className="h-full flex w-full text-white">
-                {slides.map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    className={classNames(
-                      item.width ? item.width : "w-full",
-                      "text-white items-center justify-center flex flex-col "
-                    )}
-                  >
-                    <span className="text-6xl font-semibold ">{item.stat}</span>
-                    <div className="text-2xl mt-4 ">{item.title}</div>
-                  </div>
-                ))}
+    <Splide options={options} ref={splideRef}>
+      <SplideSlide>
+        <div className="h-full w-full text-white grid grid-cols-2 gap-4 p-4">
+          {slides.map((item, index) => (
+            <div
+              key={index}
+              className={classNames(
+                item.fullWidth ? "col-span-2" : "",
+                item.width ? item.width : "",
+                "flex flex-col items-center justify-center"
+              )}
+            >
+              <span className={classNames("font-semibold", item.textSize ? item.textSize : "text-6xl")}>
+                {item.stat}
+              </span>
+              <div className={classNames("mt-4", item.textSize ? item.textSize : "text-2xl")}>
+                {item.title}
               </div>
-            </SplideSlide>
-          );
-        })}
-      </Splide>
-    </>
+            </div>
+          ))}
+        </div>
+      </SplideSlide>
+    </Splide>
   );
 };
 
