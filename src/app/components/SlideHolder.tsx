@@ -45,7 +45,7 @@ const SlideHolder = ({ slides, splideRef }: Props) => {
               <span className={classNames("font-semibold", item.textSize ? item.textSize : "text-6xl")}>
                 {item.stat}
               </span>
-              <div className={classNames("mt-4", item.textSize ? item.textSize : "text-2xl")}>
+              <div className={classNames("mt-4 text-sm")}>  {/* Hier immer kleiner */}
                 {item.title}
               </div>
             </div>
