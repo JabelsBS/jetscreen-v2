@@ -33,7 +33,7 @@ const SlideHolder = ({ slides, splideRef }: Props) => {
   return (
     <Splide options={options} ref={splideRef}>
       <SplideSlide>
-        <div className="h-full w-full text-white grid grid-cols-2 gap-0 p-0">
+        <div className="h-full w-full text-white grid grid-cols-2 gap-0 p-4">
           {slides.map((item, index) => (
             <motion.div
               key={index}
