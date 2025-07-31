@@ -11,37 +11,39 @@ const RADIUS_KM = parseFloat(process.env.NEXT_PUBLIC_RADIUS_KM || "0");
 
 export default function Home() {
   const [statePlaneData, setStatePlaneData] = useState<any>(null);
-  const [currentTime, setCurrentTime] = useState<string>("");
+  // const [currentTime, setCurrentTime] = useState<string>("");
   const currentCallsign = useRef<string>("");
   const splideRef = useRef<any>(null);
 
   // Plane Slide
-  const planeSlide = [
-    {
-      title: "Origin City",
-      stat: statePlaneData?.origin?.municipality,
-      textSize: "text-7xl",
-    },
-    {
-      title: "Destination City",
-      stat: statePlaneData?.destination?.municipality,
-      textSize: "text-7xl",
-    },
-    {
-      stat: statePlaneData?.callsign,
-      fullWidth: true,
-      textSize: "text-x1",
-    },
-  ];
+  const planeSlide = statePlaneData
+    ? [
+        {
+          title: "Origin City",
+          stat: statePlaneData?.origin?.municipality,
+          textSize: "text-7xl",
+        },
+        {
+          title: "Destination City",
+          stat: statePlaneData?.destination?.municipality,
+          textSize: "text-7xl",
+        },
+        {
+          stat: statePlaneData?.callsign,
+          fullWidth: true,
+          textSize: "text-xl",
+        },
+      ]
+    : [];
 
 
-  const slides = [
-    {
-      title: "Current Time",
-      stat: currentTime,
-      width: "w-full",
-    },
-  ];
+  // const slides = [
+  //   {
+  //     title: "Current Time",
+  //     stat: currentTime,
+  //     width: "w-full",
+  //   },
+  // ];
 
   const getPlanesAround = async () => {
     try {
