@@ -11,7 +11,7 @@ const RADIUS_KM = parseFloat(process.env.NEXT_PUBLIC_RADIUS_KM || "0");
 
 export default function Home() {
   const [statePlaneData, setStatePlaneData] = useState<any>(null);
-  // const [currentTime, setCurrentTime] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState<string>("");
   const currentCallsign = useRef<string>("");
   const splideRef = useRef<any>(null);
 
@@ -35,13 +35,13 @@ export default function Home() {
   ];
 
 
-  // const slides = [
-  //   {
-  //     title: "Current Time",
-  //     stat: currentTime,
-  //     width: "w-full",
-  //   },
-  // ];
+  const slides = [
+    {
+      title: "Current Time",
+      stat: currentTime,
+      width: "w-full",
+    },
+  ];
 
   const getPlanesAround = async () => {
     try {
@@ -97,12 +97,12 @@ export default function Home() {
     }
   };
 
-  // useEffect(() => {
-  //   const timeInterval = setInterval(() => {
-  //     setCurrentTime(new Date().toLocaleTimeString());
-  //   }, 1000);
-  //   return () => clearInterval(timeInterval);
-  // }, []);
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(timeInterval);
+  }, []);
 
   useEffect(() => {
     getPlanesAround();
@@ -117,7 +117,7 @@ export default function Home() {
     <div className="min-h-screen w-full bg-black">
       {statePlaneData && <PlaneAnimation />}
       <SlideHolder
-        slides={statePlaneData ? planeSlide} // : slides
+        slides={statePlaneData ? planeSlide : slides} // : slides
         splideRef={splideRef}
       />
     </div>
