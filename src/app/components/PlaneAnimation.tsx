@@ -10,7 +10,7 @@ export const PlaneAnimation = ({}: PlaneAnimationProps) => {
               version="1.1" 
               width="120px" 
               height="140px" 
-              viewBox="0 0 60 90"
+              viewBox="0 0 80 110"
               fill="white"
             >
               <defs>
