@@ -27,7 +27,7 @@ export default function Home() {
     {
       title: `Origin City`,
       stat: statePlaneData?.origin?.municipality,
-      width: "w-7/12",
+      width: "w-8/12",
     },
     {
       title: `Destination City`,
