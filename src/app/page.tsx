@@ -28,7 +28,6 @@ export default function Home() {
       textSize: "text-7xl",
     },
     {
-      title: "Flight",
       stat: statePlaneData?.callsign,
       fullWidth: true,
       textSize: "text-x1",
