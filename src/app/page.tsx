@@ -31,7 +31,7 @@ export default function Home() {
       title: "Flight",
       stat: statePlaneData?.callsign,
       fullWidth: true,
-      textSize: "text-sm",    // Flight wird kleiner dargestellt
+      textSize: "text-sm",
     },
   ];
 
