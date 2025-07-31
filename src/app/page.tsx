@@ -26,13 +26,13 @@ export default function Home() {
           textSize: "text-7xl",
         },
         {
-          stat: <PlaneIcon />,
-          fullWidth: true,
-        },
-        {
           title: "Destination City",
           stat: statePlaneData?.destination?.municipality,
           textSize: "text-7xl",
+        },
+        {
+          stat: <PlaneIcon />,
+          fullWidth: true,
         },
         {
           stat: statePlaneData?.callsign,
