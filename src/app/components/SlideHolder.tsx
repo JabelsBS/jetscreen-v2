@@ -3,13 +3,14 @@ import React from "react";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { classNames } from "../lib/classNames";
+import { motion } from "framer-motion";
 
 type SlideItem = {
   title: string;
   stat: string | undefined;
   width?: string;
-  fullWidth?: boolean;   // Wenn true: col-span-2 (volle Breite)
-  textSize?: string;     // z.B. "text-sm", "text-xl" etc.
+  fullWidth?: boolean;
+  textSize?: string;
 };
 
 type Props = {
@@ -34,21 +35,24 @@ const SlideHolder = ({ slides, splideRef }: Props) => {
       <SplideSlide>
         <div className="h-full w-full text-white grid grid-cols-2 gap-4 p-4">
           {slides.map((item, index) => (
-            <div
+            <motion.div
               key={index}
               className={classNames(
                 item.fullWidth ? "col-span-2" : "",
                 item.width ? item.width : "",
                 "flex flex-col items-center justify-center"
               )}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <span className={classNames("font-semibold", item.textSize ? item.textSize : "text-6xl")}>
                 {item.stat}
               </span>
-              <div className={classNames("mt-4 text-sm")}>  {/* Hier immer kleiner */}
+              <div className="mt-4 text-sm">
                 {item.title}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </SplideSlide>
