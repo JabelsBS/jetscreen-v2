@@ -15,19 +15,12 @@ export default function Home() {
   const currentCallsign = useRef<string>("");
   const splideRef = useRef<any>(null);
 
-  // Code to determine if we use the origin or destination:
-  // let planeData = statePlaneData?.origin || {}
-  // planeData.whichOne = "Origin"
-  // if (LOCAL_AIRPORT_LIST.includes(statePlaneData?.origin?.iata_code)) {
-  //   planeData = statePlaneData?.destination
-  //   planeData.whichOne = "Destination"
-  // }
-
+  // Plane Slide
   const planeSlide = [
     {
       title: `Origin City`,
       stat: statePlaneData?.origin?.municipality,
-      width: "w-8/12",
+      width: "w-6/12",
     },
     {
       title: `Destination City`,
