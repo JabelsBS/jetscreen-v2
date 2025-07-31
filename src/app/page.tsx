@@ -18,21 +18,23 @@ export default function Home() {
   // Plane Slide
   const planeSlide = [
     {
-      title: `Origin City`,
+      title: "Origin City",
       stat: statePlaneData?.origin?.municipality,
-      width: "w-6/12",
+      textSize: "text-6xl",
     },
     {
-      title: `Destination City`,
+      title: "Destination City",
       stat: statePlaneData?.destination?.municipality,
-      width: "w-6/12",
+      textSize: "text-6xl",
     },
     {
-    title: `Flight`,
-    stat: statePlaneData?.callsign,
-    width:"w-full text-center text-sm mt-4 block",
+      title: "Flight",
+      stat: statePlaneData?.callsign,
+      fullWidth: true,
+      textSize: "text-sm",    // Flight wird kleiner dargestellt
     },
   ];
+
 
   const slides = [
     {
