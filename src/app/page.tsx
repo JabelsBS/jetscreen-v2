@@ -20,18 +20,18 @@ export default function Home() {
     {
       title: "Origin City",
       stat: statePlaneData?.origin?.municipality,
-      textSize: "text-6xl",
+      textSize: "text-7xl",
     },
     {
       title: "Destination City",
       stat: statePlaneData?.destination?.municipality,
-      textSize: "text-6xl",
+      textSize: "text-7xl",
     },
     {
       title: "Flight",
       stat: statePlaneData?.callsign,
       fullWidth: true,
-      textSize: "text-lg",
+      textSize: "text-x1",
     },
   ];
 
