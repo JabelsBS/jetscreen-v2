@@ -4,6 +4,7 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { classNames } from "../lib/classNames";
 import { motion } from "framer-motion";
+import type { Options } from "@splidejs/react-splide";
 
 type SlideItem = {
   title: string;
@@ -18,7 +19,7 @@ type Props = {
   splideRef: any;
 };
 
-const options = {
+const options: Options = {
   type: "loop",
   arrows: false,
   direction: "ttb",
