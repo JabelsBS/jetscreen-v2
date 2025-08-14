@@ -5,10 +5,11 @@ import "@splidejs/react-splide/css";
 import { classNames } from "../lib/classNames";
 import { motion } from "framer-motion";
 import type { Options } from "@splidejs/react-splide";
+import type { ReactNode } from "react";
 
 type SlideItem = {
-  title: string;
-  stat: string | undefined;
+  title?: string;
+  stat: ReactNode;
   width?: string;
   fullWidth?: boolean;
   textSize?: string;
@@ -47,12 +48,17 @@ const SlideHolder = ({ slides, splideRef }: Props) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <span className={classNames("font-semibold text-center break-words max-w-full", item.textSize ? item.textSize : "text-6xl")}>
+              <span className={classNames(
+                "font-semibold text-center break-words max-w-full", 
+                item.textSize ? item.textSize : "text-6xl"
+              )}>
                 {item.stat}
               </span>
-              <div className="mt-4 text-sm">
-                {item.title}
-              </div>
+              {item.title && (
+                <div className="mt-4 text-sm">
+                  {item.title}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
