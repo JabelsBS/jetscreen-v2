@@ -4,8 +4,8 @@ export const PlaneIcon = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="150"
-      height="150"
+      width="125"
+      height="125"
       viewBox="0 0 2501 2501"
       fill="white"
       transform="rotate(90 0 0)"
