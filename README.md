@@ -1,7 +1,82 @@
 # Jetscreen
-![](https://github.com/oliverrees/jetscreen/blob/main/screendemo.gif)
 
-If you live on a flight path or often have planes flying overhead, you might wonder where in the world they've come from. Jetscreen uses live ADS-B data to identify planes flying overhead, and then looks up the origin via the [adsbdb API](https://www.adsbdb.com/).
+Jetscreen shows multiple nearby aircraft on a quiet, north-up local map. The
+1024 x 600 display uses custom aircraft silhouettes, short trails, and compact
+selected-flight information. The map is a one-time exported local PNG; aircraft
+positions update from your ADS-B receiver independently of route availability.
+
+## Local Preview and Map Export
+
+Use Node.js 22 LTS. Existing dependencies can be installed with `npm ci` on a
+machine with internet access. Copy `.env.example` to `.env.local` and set
+`LOCAL_ADSB_URL` to your receiver's `aircraft.json` endpoint.
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000/?demo=1` for an explicitly labelled, simulated view.
+This demo does not fetch aircraft or routes from the internet. Without a map
+asset, the display uses a dark background and reports the missing map.
+`http://localhost:3000/` uses the real receiver; it never silently substitutes
+demo flights. Select a marker or callsign for details; Auto follows the nearest
+in-range aircraft.
+
+Generate the map once, on a machine where Overpass is reachable:
+
+```bash
+npm run map:generate
+```
+
+Defaults: latitude `52.43657424314263`, longitude `10.595466532451821`, radius
+`2` km. To generate another location, pass the same settings as your environment:
+
+```bash
+npm run map:generate -- 52.43657424314263 10.595466532451821 2
+```
+
+This downloads OpenStreetMap roads, building footprints, water and woodland
+via Overpass and renders them once as `public/local-map.png`, with exact
+Web Mercator bounds in `public/local-map.json`. Keep both files together. The
+2048 x 852 export matches the free map area of the 1024 x 600 display; its
+aspect ratio is preserved on other screens. There is no runtime tile server,
+API key, or map-library requirement. Changing the center/radius requires a new
+export. Mismatched map settings are rejected rather than misplacing aircraft.
+The export shares your geographic area with Overpass. OpenStreetMap attribution
+is shown with the map; see [OSM copyright](https://www.openstreetmap.org/copyright).
+
+The live display polls every two seconds without overlapping requests. Last
+known positions fade after ten seconds and expire after thirty seconds; route
+failures do not remove aircraft. Identifiers without callsigns use the receiver's
+hex ID. Standard dump1090/readsb `alt_geom`, `alt_baro`, or legacy `altitude`
+numeric values are converted from feet to meters, with geometric altitude
+preferred. These values are not height above ground. Unknown height remains
+unknown; verify the actual receiver schema before relying on altitude values.
+
+## Verification
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Browser tests require a running server on port 3000 and a browser that permits
+Playwright automation. On Windows they use installed Edge, without a browser
+download. On other systems, provision Playwright's Chromium separately.
+
+```bash
+npm run test:display
+```
+
+Tests use local fixtures, block external browser requests, and cover the 1024 x
+600 and mobile layouts, selection, raster alignment, missing routes and position
+expiry. The raster test uses a synthetic test image, not real neighborhood data.
+`PLAYWRIGHT_CHANNEL` can select another already provisioned browser.
+
+The inherited Next.js 13 dependency set has known security advisories. The
+display change does not upgrade the framework. Keep this development instance
+local and review a supported-version migration before public exposure.
 
 ## Requirements
 To run Jetscreen, you'll need the following hardware:
@@ -66,10 +141,10 @@ Edit this file to include the following variables:
 ```bash
 LOCAL_ADSB_URL=http://192.168.1.100:8080/data/aircraft.json
 NEXT_PUBLIC_FLIGHT_DETAILS_URL=https://api.adsbdb.com/v0/callsign/
-NEXT_PUBLIC_CENTER_LAT=51.47674088740635
-NEXT_PUBLIC_CENTER_LON=-0.23339838187103154
+NEXT_PUBLIC_CENTER_LAT=52.43657424314263
+NEXT_PUBLIC_CENTER_LON=10.595466532451821
 NEXT_PUBLIC_RADIUS_KM=2
-NEXT_PUBLIC_LOCAL_AIRPORT_CODES=YVR,YYX
+NEXT_TELEMETRY_DISABLED=1
 ```
 
 #### Explanation of Environment Variables:
@@ -78,7 +153,7 @@ NEXT_PUBLIC_LOCAL_AIRPORT_CODES=YVR,YYX
 - `NEXT_PUBLIC_CENTER_LAT`: The latitude of the center point of the map where you're tracking planes (replace with your location).
 - `NEXT_PUBLIC_CENTER_LON`: The longitude of the center point (replace with your location).
 - `NEXT_PUBLIC_RADIUS_KM`: The radius (in kilometers) for which you want to track planes around your center point.
-- `NEXT_PUBLIC_LOCAL_AIRPORT_CODES`: (Optional) The IATA codes for the local airports near you, as a comma separated list. If the flight origin is your local airport's IATA code, the Destination information will be displayed instead.
+- `NEXT_TELEMETRY_DISABLED`: Set to `1` to disable Next.js telemetry.
 
 ### 7. Start the Development Server
 To start the server in development mode, run the following command:

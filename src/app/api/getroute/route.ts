@@ -7,16 +7,20 @@ export async function GET(request: NextRequest) {
 
   // Extract the callsign from the query parameters
   const callsign = searchParams.get("callsign");
-  if (!callsign) {
+  if (!callsign || !/^[a-zA-Z0-9_-]{1,20}$/.test(callsign)) {
     return NextResponse.json(
       { error: "No callsign provided" },
       { status: 400 }
     );
   }
 
+  if (!FLIGHT_DETAILS_URL) {
+    return NextResponse.json({ error: "Flight details URL is not configured" }, { status: 503 });
+  }
+
   try {
     // Fetch data from the external API
-    const flightDetails = await fetch(`${FLIGHT_DETAILS_URL}${callsign}`);
+    const flightDetails = await fetch(`${FLIGHT_DETAILS_URL}${encodeURIComponent(callsign)}`, { signal: AbortSignal.timeout(5000) });
 
     // Handle unsuccessful requests
     if (!flightDetails.ok) {
