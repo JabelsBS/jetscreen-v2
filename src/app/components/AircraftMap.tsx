@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { Aircraft, Site } from "../lib/aircraft";
 import { MapBounds, projectPosition } from "../lib/mapGeometry";
 import { AircraftGlyph } from "./AircraftGlyph";
+import { OnlineMap } from "./OnlineMap";
 
 type Props = {
   aircraft: Aircraft[];
@@ -12,14 +12,11 @@ type Props = {
   site: Site;
   bounds: MapBounds;
   aspect: number;
-  mapAvailable: boolean;
-  mapStatus: string;
-  onMapError: () => void;
   onSelect: (id: string) => void;
 };
 type Point = { x: number; y: number };
 
-export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, mapAvailable, mapStatus, onMapError, onSelect }: Props) {
+export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, onSelect }: Props) {
   const viewport = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 1024, height: 600 });
   const [trails, setTrails] = useState<Record<string, Point[]>>({});
@@ -70,7 +67,7 @@ export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, mapAva
 
   return <section className="map-viewport" ref={viewport} aria-label="Flugzeuge rund um den Standort, Norden oben">
     <div className="map-frame" style={{ width: size.width, height: size.height }}>
-      {mapAvailable && <Image className="local-map" src="/local-map.png" width={1024} height={600} unoptimized alt="Dunkle Umgebungskarte" onError={onMapError} draggable={false} />}
+      <OnlineMap bounds={bounds} width={size.width} height={size.height} />
       <svg className="flight-trails" viewBox={`0 0 ${size.width} ${size.height}`} aria-hidden="true">
         {aircraft.map(plane => <polyline key={plane.id} points={(trails[plane.id] ?? []).map(point => `${point.x * size.width},${point.y * size.height}`).join(" ")} className={plane.id === selectedId ? "selected-trail" : ""} />)}
         {placements.map(label => {
@@ -94,7 +91,5 @@ export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, mapAva
       })}
     </div>
     <div className="north-marker" title="Norden oben"><span>N</span><span className="north-needle" /></div>
-    {mapStatus && <span className="map-notice" role="status">{mapStatus}</span>}
-    {mapAvailable && <a className="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">&#169; OpenStreetMap contributors</a>}
   </section>;
 }

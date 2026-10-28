@@ -1,16 +1,47 @@
 import { expect, test, Page } from "@playwright/test";
 import sharp from "sharp";
-import { createMapBounds } from "../src/app/lib/mapGeometry";
 
 const center = { latitude: 52.43657424314263, longitude: 10.595466532451821 };
-const bounds = createMapBounds(center.latitude, center.longitude, 2, 1024 / 426);
 
-async function localOnly(page: Page) {
-  await page.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
-  await page.route("**/local-map.json", route => route.fulfill({ status: 404, body: "" }));
+function vectorTileFixture() {
+  const varint = (value: number) => {
+    const bytes: number[] = [];
+    do {
+      const byte = value % 128;
+      value = Math.floor(value / 128);
+      bytes.push(byte | (value ? 128 : 0));
+    } while (value);
+    return Buffer.from(bytes);
+  };
+  const integer = (field: number, value: number) => Buffer.concat([varint(field * 8), varint(value)]);
+  const data = (field: number, value: Buffer) => Buffer.concat([varint(field * 8 + 2), varint(value.length), value]);
+  const line = (y: number, type: number) => Buffer.concat([
+    data(2, Buffer.from([0, type === 2 ? 1 : 0, 1, type === 1 ? 2 : 3])), integer(3, 2),
+    data(4, Buffer.concat([varint(9), varint(0), varint(y * 2), varint(10), varint(8192), varint(0)])),
+  ]);
+  const layer = Buffer.concat([
+    data(1, Buffer.from("streets")), ...Array.from({ length: 16 }, (_, index) => data(2, line(128 + index * 256, index % 3))),
+    data(3, Buffer.from("rail")), data(3, Buffer.from("kind")),
+    data(4, integer(7, 0)), data(4, integer(7, 1)),
+    data(4, data(1, Buffer.from("primary"))), data(4, data(1, Buffer.from("residential"))),
+    integer(5, 4096), integer(15, 2),
+  ]);
+  return data(3, layer);
 }
 
-test("demo works without external requests at display and mobile sizes", async ({ page }, testInfo) => {
+async function localOnly(page: Page, tile = Buffer.alloc(0)) {
+  await page.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+  await page.route("https://vector.openstreetmap.org/**", route => {
+    if (route.request().url().endsWith("tilejson.json")) {
+      return route.fulfill({ headers: { "access-control-allow-origin": "*" }, json: {
+        tilejson: "3.0.0", tiles: ["https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt"], minzoom: 0, maxzoom: 14,
+      } });
+    }
+    return route.fulfill({ headers: { "access-control-allow-origin": "*" }, contentType: "application/vnd.mapbox-vector-tile", body: tile });
+  });
+}
+
+test("demo works with local tile fixtures at display and mobile sizes", async ({ page }, testInfo) => {
   await localOnly(page);
   const errors: string[] = [];
   const apiRequests: string[] = [];
@@ -21,7 +52,7 @@ test("demo works without external requests at display and mobile sizes", async (
     await page.goto("/?demo=1");
     await expect(page.locator(".aircraft-marker")).toHaveCount(5);
     await expect(page.locator(".display-status")).toContainText("DEMO");
-    await expect(page.locator(".map-notice")).toHaveText("Kartenbild noch nicht vorhanden");
+    await expect(page.locator(".map-notice")).toHaveCount(0, { timeout: 20000 });
     await expect(page.locator(".contact-count")).toHaveText("5 Flieger");
     const initial = await page.locator(".aircraft-marker").first().evaluate(element => element.getBoundingClientRect().x);
     await expect.poll(() => page.locator(".aircraft-marker").first().evaluate(element => element.getBoundingClientRect().x), { timeout: 8000 }).not.toBe(initial);
@@ -38,11 +69,39 @@ test("demo works without external requests at display and mobile sizes", async (
     });
     expect(geometry).toEqual({ overflow: false, outside: false, overlap: false });
     const screenshot = await page.screenshot({ path: testInfo.outputPath(`demo-${size.width}.png`) });
-    const pixels = await sharp(screenshot).raw().toBuffer();
+    const pixels: Buffer = await sharp(screenshot).raw().toBuffer();
     expect(pixels.some(value => value > 150)).toBeTruthy();
   }
   expect(errors).toEqual([]);
   expect(apiRequests).toEqual([]);
+});
+
+test("railways and road classes are distinct and the map stays fixed", async ({ page }) => {
+  await localOnly(page, vectorTileFixture());
+  await page.clock.install();
+  await page.goto("/?demo=1");
+  await expect(page.locator(".map-notice")).toHaveCount(0, { timeout: 20000 });
+  await page.addStyleTag({ content: ".flight-trails,.home-marker,.aircraft-marker,.aircraft-label,.north-marker,.map-attribution { visibility: hidden !important; }" });
+  const map = page.locator(".online-map");
+  const before = await map.screenshot();
+  const { data: pixels, info } = await sharp(before).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let minorRoads = 0;
+  let majorRoads = 0;
+  let railways = 0;
+  for (let index = 0; index < pixels.length; index += info.channels) {
+    const [red, green, blue] = pixels.subarray(index, index + 3);
+    if (red > 35 && red < 75 && green > red && Math.abs(green - blue) < 5) minorRoads++;
+    if (red >= 75 && green > red && Math.abs(green - blue) < 5) majorRoads++;
+    if (red > 55 && red > green + 3 && green > blue + 3) railways++;
+  }
+  expect(minorRoads).toBeGreaterThan(20);
+  expect(majorRoads).toBeGreaterThan(20);
+  expect(railways).toBeGreaterThan(20);
+  const aircraftBefore = await page.locator(".aircraft-marker").first().getAttribute("style");
+  await page.clock.fastForward(600000);
+  await expect.poll(() => page.locator(".aircraft-marker").first().getAttribute("style")).not.toBe(aircraftBefore);
+  const after = await map.screenshot();
+  expect(after.equals(before)).toBeTruthy();
 });
 
 test("live contacts survive missing routes and can be selected without callsigns", async ({ page }) => {
@@ -61,25 +120,44 @@ test("live contacts survive missing routes and can be selected without callsigns
   await expect(page.locator(".flight-route")).toHaveText("Ohne Rufzeichen");
 });
 
-test("a local raster and its metadata align with the north-up position layer", async ({ page }) => {
+test("online tiles load with a north-up position layer and attribution", async ({ page }) => {
   await localOnly(page);
-  await page.route("**/local-map.json", route => route.fulfill({ json: { center, radiusKm: 2, bounds, width: 2048, height: 852, projection: "EPSG:3857" } }));
-  const image = await sharp({ create: { width: 2048, height: 852, channels: 3, background: "#101819" } }).png().toBuffer();
-  await page.route("**/local-map.png", route => route.fulfill({ contentType: "image/png", body: image }));
+  const tileRequests: string[] = [];
+  page.on("request", request => { if (request.url().endsWith(".mvt")) tileRequests.push(request.url()); });
   await page.goto("/?demo=1");
-  await expect(page.locator(".local-map")).toBeVisible();
-  await expect(page.locator(".map-notice")).toHaveCount(0);
+  await expect(page.locator(".online-map canvas")).toBeVisible();
+  await expect(page.locator(".map-notice")).toHaveCount(0, { timeout: 20000 });
+  expect(tileRequests.length).toBeGreaterThan(0);
+  await expect(page.locator(".map-attribution")).toContainText("OpenStreetMap");
   const result = await page.locator(".map-frame").evaluate(element => {
     const rect = element.getBoundingClientRect();
     const home = element.querySelector(".home-marker")!.getBoundingClientRect();
-    const image = element.querySelector("img")!;
-    return { width: rect.width, ratio: rect.width / rect.height, homeX: home.x + home.width / 2 - rect.x, homeY: home.y + home.height / 2 - rect.y, loaded: image.naturalWidth > 0 };
+    const canvas = element.querySelector(".online-map canvas")!.getBoundingClientRect();
+    return { width: rect.width, height: rect.height, ratio: rect.width / rect.height, homeX: home.x + home.width / 2 - rect.x, homeY: home.y + home.height / 2 - rect.y, canvasWidth: canvas.width, canvasHeight: canvas.height };
   });
   expect(result.width).toBeCloseTo(1024, 0);
   expect(result.ratio).toBeCloseTo(1024 / 426, 4);
   expect(result.homeX).toBeCloseTo(512, 0);
   expect(result.homeY).toBeCloseTo(213, 0);
-  expect(result.loaded).toBeTruthy();
+  expect(result.canvasWidth).toBeCloseTo(result.width, 0);
+  expect(result.canvasHeight).toBeCloseTo(result.height, 0);
+});
+
+test("map service failures are visible without hiding aircraft and recover", async ({ page }) => {
+  await localOnly(page);
+  await page.clock.install();
+  let failed = true;
+  await page.route("**/tilejson.json", route => route.fulfill(failed
+    ? { status: 503, headers: { "access-control-allow-origin": "*" }, body: "offline" }
+    : { headers: { "access-control-allow-origin": "*" }, json: {
+      tilejson: "3.0.0", tiles: ["https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt"], minzoom: 0, maxzoom: 14,
+    } }));
+  await page.goto("/?demo=1");
+  await expect(page.locator(".map-notice")).toHaveText("Online-Karte nicht verf\u00fcgbar");
+  await expect(page.locator(".aircraft-marker")).toHaveCount(5);
+  failed = false;
+  await page.clock.fastForward(31000);
+  await expect(page.locator(".map-notice")).toHaveCount(0, { timeout: 20000 });
 });
 
 test("receiver outages expire old positions rather than show ghosts indefinitely", async ({ page }) => {

@@ -2,10 +2,11 @@
 
 Jetscreen shows multiple nearby aircraft on a quiet, north-up local map. The
 1024 x 600 display uses custom aircraft silhouettes, short trails, and compact
-selected-flight information. The map is a one-time exported local PNG; aircraft
-positions update from your ADS-B receiver independently of route availability.
+selected-flight information. A dark, label-free online map uses OpenStreetMap
+vector tiles; aircraft positions update from your ADS-B receiver independently
+of route availability.
 
-## Local Preview and Map Export
+## Local Preview and Online Map
 
 Use Node.js 22 LTS. Existing dependencies can be installed with `npm ci` on a
 machine with internet access. Copy `.env.example` to `.env.local` and set
@@ -16,34 +17,30 @@ npm run dev
 ```
 
 Open `http://localhost:3000/?demo=1` for an explicitly labelled, simulated view.
-This demo does not fetch aircraft or routes from the internet. Without a map
-asset, the display uses a dark background and reports the missing map.
+The demo loads map tiles online but does not fetch aircraft or routes.
 `http://localhost:3000/` uses the real receiver; it never silently substitutes
 demo flights. Select a marker or callsign for details; Auto follows the nearest
 in-range aircraft.
 
-Generate the map once, on a machine where Overpass is reachable:
-
-```bash
-npm run map:generate
-```
-
 Defaults: latitude `52.43657424314263`, longitude `10.595466532451821`, radius
-`2` km. To generate another location, pass the same settings as your environment:
+`2` km. Configure the center and radius in `.env.local`; the map and aircraft
+positions use the same Web Mercator bounds. The map uses MapLibre GL JS and,
+by default, OpenStreetMap's Shortbread vector tile service, without an API key.
+It requires internet access and a browser with WebGL support. If the service or
+WebGL is unavailable, the display reports the map error and continues to show
+aircraft. Tile service errors are retried after 30 seconds. The tile provider
+receives your IP address and approximate map area; aircraft positions are not
+sent to it.
 
-```bash
-npm run map:generate -- 52.43657424314263 10.595466532451821 2
-```
+`NEXT_PUBLIC_MAP_TILEJSON_URL` optionally selects another Shortbread-compatible
+TileJSON endpoint; check its terms and attribution requirements before use.
+OpenStreetMap's vector service is best-effort and subject to its
+[usage policy](https://operations.osmfoundation.org/policies/vector/).
+OpenStreetMap attribution remains visible on the map; see
+[OSM copyright](https://www.openstreetmap.org/copyright).
 
-This downloads OpenStreetMap roads, building footprints, water and woodland
-via Overpass and renders them once as `public/local-map.png`, with exact
-Web Mercator bounds in `public/local-map.json`. Keep both files together. The
-2048 x 852 export matches the free map area of the 1024 x 600 display; its
-aspect ratio is preserved on other screens. There is no runtime tile server,
-API key, or map-library requirement. Changing the center/radius requires a new
-export. Mismatched map settings are rejected rather than misplacing aircraft.
-The export shares your geographic area with Overpass. OpenStreetMap attribution
-is shown with the map; see [OSM copyright](https://www.openstreetmap.org/copyright).
+The older `npm run map:generate` script is still available for producing a
+local raster export, but the online display does not use that export.
 
 The live display polls every two seconds without overlapping requests. Last
 known positions fade after ten seconds and expire after thirty seconds; route
@@ -64,14 +61,15 @@ npm run build
 Browser tests require a running server on port 3000 and a browser that permits
 Playwright automation. On Windows they use installed Edge, without a browser
 download. On other systems, provision Playwright's Chromium separately.
+Set `PLAYWRIGHT_BASE_URL` to use a server on another local port.
 
 ```bash
 npm run test:display
 ```
 
-Tests use local fixtures, block external browser requests, and cover the 1024 x
-600 and mobile layouts, selection, raster alignment, missing routes and position
-expiry. The raster test uses a synthetic test image, not real neighborhood data.
+Tests use local tile fixtures, block external browser requests, and cover the
+1024 x 600 and mobile layouts, selection, map loading and failure, missing routes
+and position expiry. The tile fixture does not contain real neighborhood data.
 `PLAYWRIGHT_CHANNEL` can select another already provisioned browser.
 
 The inherited Next.js 13 dependency set has known security advisories. The
@@ -192,9 +190,5 @@ To open Jetscreen in full-screen mode, run:
 ```bash
 chromium-browser --kiosk http://localhost:3000
 ```
-
-
-
-
 
 

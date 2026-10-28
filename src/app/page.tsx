@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AircraftMap } from "./components/AircraftMap";
 import SlideHolder from "./components/SlideHolder";
 import { Aircraft, demoAircraft, normalizeAircraft, POSITION_LIFETIME_MS, Site } from "./lib/aircraft";
-import { createMapBounds, MapBounds } from "./lib/mapGeometry";
+import { createMapBounds } from "./lib/mapGeometry";
 
 const site: Site = {
   latitude: Number(process.env.NEXT_PUBLIC_CENTER_LAT || "52.43657424314263"),
@@ -12,9 +12,9 @@ const site: Site = {
 };
 const validSite = Number.isFinite(site.latitude) && Math.abs(site.latitude) <= 85 &&
   Number.isFinite(site.longitude) && Math.abs(site.longitude) <= 180 && Number.isFinite(site.radiusKm) && site.radiusKm > 0;
-const fallbackBounds = createMapBounds(site.latitude, site.longitude, site.radiusKm, 1024 / 426);
+const MAP_ASPECT = 1024 / 426;
+const bounds = createMapBounds(site.latitude, site.longitude, site.radiusKm, MAP_ASPECT);
 const POLL_MS = 2000;
-type LocalMap = { bounds: MapBounds; width: number; height: number };
 
 export default function Home() {
   const [mode, setMode] = useState<"live" | "demo" | null>(null);
@@ -22,8 +22,6 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [feedStatus, setFeedStatus] = useState("Verbindung wird hergestellt");
   const [feedOkay, setFeedOkay] = useState(false);
-  const [localMap, setLocalMap] = useState<LocalMap | null>(null);
-  const [mapStatus, setMapStatus] = useState("Kartenbild wird geladen");
   const [clock, setClock] = useState("");
 
   useEffect(() => {
@@ -35,35 +33,6 @@ export default function Home() {
     updateClock();
     const interval = window.setInterval(updateClock, 1000);
     return () => window.clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (!validSite) return;
-    const controller = new AbortController();
-    const loadMap = async () => {
-      try {
-        const response = await fetch("/local-map.json", { signal: controller.signal, cache: "no-store" });
-        if (!response.ok) throw new Error("Kartenbild noch nicht vorhanden");
-        const data = await response.json();
-        const bounds = data.bounds;
-        if (data.projection !== "EPSG:3857" || !bounds ||
-          ![bounds.west, bounds.south, bounds.east, bounds.north, data.width, data.height].every(value => typeof value === "number" && Number.isFinite(value)) ||
-          bounds.west >= bounds.east || bounds.south >= bounds.north || data.width <= 0 || data.height <= 0) {
-          throw new Error("Karteninformationen ung\u00fcltig");
-        }
-        if (!Number.isFinite(data.center?.latitude) || !Number.isFinite(data.center?.longitude) ||
-          Math.abs(data.center.latitude - site.latitude) > 0.000001 ||
-          Math.abs(data.center.longitude - site.longitude) > 0.000001 || data.radiusKm !== site.radiusKm) {
-          throw new Error("Kartenausschnitt passt nicht zum Standort");
-        }
-        setLocalMap({ bounds, width: data.width, height: data.height });
-        setMapStatus("");
-      } catch (error) {
-        if (!controller.signal.aborted) setMapStatus(error instanceof Error ? error.message : "Karte nicht verfuegbar");
-      }
-    };
-    loadMap();
-    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -110,9 +79,7 @@ export default function Home() {
     </header>
     {validSite ? <>
       <AircraftMap aircraft={aircraft} selectedId={selected?.id ?? null} site={site}
-        bounds={localMap?.bounds ?? fallbackBounds} aspect={localMap ? localMap.width / localMap.height : 1024 / 426}
-        mapAvailable={Boolean(localMap)} mapStatus={mapStatus}
-        onMapError={() => { setLocalMap(null); setMapStatus("Kartenbild nicht lesbar"); }} onSelect={setSelectedId} />
+        bounds={bounds} aspect={MAP_ASPECT} onSelect={setSelectedId} />
       <SlideHolder aircraft={selected} demo={mode === "demo"} />
       <nav className="contact-strip" aria-label="Flugzeugauswahl">
         <button className={selectedId === null || !aircraft.some(plane => plane.id === selectedId) ? "active" : ""} onClick={() => setSelectedId(null)} title="Automatisch den n&#228;chsten Flieger ausw&#228;hlen">Auto</button>

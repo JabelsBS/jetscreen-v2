@@ -27,7 +27,7 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
 .status-light.connected { background: #91aa9b; }
 .map-viewport { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--ground); }
 .map-frame { position: relative; flex-shrink: 0; }
-.local-map { display: block; width: 100%; height: 100%; user-select: none; }
+.online-map, .online-map.maplibregl-map { position: absolute; inset: 0; }
 .flight-trails { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .flight-trails polyline { fill: none; stroke: #626d69; stroke-width: 1; stroke-opacity: 0.35; stroke-linecap: round; stroke-linejoin: round; }
 .flight-trails .selected-trail { stroke: var(--accent); stroke-opacity: 0.48; }
@@ -51,8 +51,8 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
 .north-marker { position: absolute; top: 10px; right: 28px; display: flex; align-items: center; flex-direction: column; gap: 7px; font-size: 11px; color: #a0aaa4; pointer-events: none; }
 .north-needle { display: block; height: 19px; width: 1px; background: #7f8e85; position: relative; }
 .north-needle::before { content: ""; position: absolute; width: 5px; height: 5px; border-left: 1px solid #7f8e85; border-top: 1px solid #7f8e85; transform: rotate(45deg); left: -2px; }
-.map-notice { position: absolute; top: 12px; left: 26px; color: #687273; font-size: 11px; max-width: 75%; }
-.map-attribution { position: absolute; bottom: 8px; right: 18px; font-size: 9px; color: #626b68; text-decoration: none; }
+.map-notice { position: absolute; z-index: 6; top: 12px; left: 26px; color: #aab5b0; font-size: 11px; max-width: 75%; pointer-events: none; }
+.map-attribution { position: absolute; z-index: 6; bottom: 8px; right: 18px; font-size: 10px; color: #b6bfbb; background: #080b0ccc; text-decoration: none; }
 .flight-detail { flex: 0 0 78px; height: 78px; padding: 14px 26px; display: grid; grid-template-columns: 120px minmax(100px, 1fr) 100px 90px 100px; gap: 22px; align-items: center; border-top: 1px solid var(--line); background: var(--surface); }
 .detail-caption { display: block; color: #73807b; font-size: 9px; margin-bottom: 6px; }
 .flight-identity strong { font-size: 19px; font-weight: 500; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
