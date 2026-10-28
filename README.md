@@ -50,6 +50,27 @@ numeric values are converted from feet to meters, with geometric altitude
 preferred. These values are not height above ground. Unknown height remains
 unknown; verify the actual receiver schema before relying on altitude values.
 
+## Updating an existing installation
+
+You do not need to clone the repository again. On the machine running Jetscreen,
+open the existing project directory and check for local changes before pulling:
+
+```bash
+cd jetscreen-v2
+git status
+git pull --ff-only
+npm ci
+```
+
+`git pull --ff-only` stops if the local branch and its remote have diverged;
+resolve any local changes or divergence before updating. `npm ci` reinstalls
+dependencies from `package-lock.json`. Your `.env.local` is not overwritten.
+The update only includes commits already pushed to the configured remote.
+
+Restart the application after updating. For development, run `npm run dev`. For
+production, rebuild with `npm run build`, then restart the application or its
+service (or run `npm start` if starting it manually). Use Node.js 22 LTS.
+
 ## Verification
 
 ```bash
@@ -190,5 +211,4 @@ To open Jetscreen in full-screen mode, run:
 ```bash
 chromium-browser --kiosk http://localhost:3000
 ```
-
 
