@@ -120,6 +120,20 @@ test("live contacts survive missing routes and can be selected without callsigns
   await expect(page.locator(".flight-route")).toHaveText("Ohne Rufzeichen");
 });
 
+test("live contacts are shown across the full map width", async ({ page }) => {
+  await localOnly(page);
+  await page.route("**/api/aircraft", route => route.fulfill({ json: { aircraft: [
+    { hex: "east", lat: center.latitude, lon: center.longitude + 0.045 },
+    { hex: "west", lat: center.latitude, lon: center.longitude - 0.045 },
+    { hex: "outside", lat: center.latitude + 0.03, lon: center.longitude },
+  ] } }));
+  await page.goto("/");
+  await expect(page.locator(".aircraft-marker")).toHaveCount(2);
+  await expect(page.locator(".contact-strip button", { hasText: "EAST" })).toBeVisible();
+  await expect(page.locator(".contact-strip button", { hasText: "WEST" })).toBeVisible();
+  await expect(page.locator(".contact-strip button", { hasText: "OUTSIDE" })).toHaveCount(0);
+});
+
 test("online tiles load with a north-up position layer and attribution", async ({ page }) => {
   await localOnly(page);
   const tileRequests: string[] = [];

@@ -50,16 +50,16 @@ export default function Home() {
       const timeout = window.setTimeout(() => requestController.abort(), 5000);
       try {
         if (mode === "demo") {
-          setAircraft(demoAircraft(site, (Date.now() - startedAt) / 1000));
+          setAircraft(demoAircraft(site, bounds, (Date.now() - startedAt) / 1000));
           setFeedStatus("Simulierte Fl\u00fcge");
           setFeedOkay(true);
         } else {
           const response = await fetch("/api/aircraft", { signal: requestController.signal, cache: "no-store" });
           if (!response.ok) throw new Error("Empf\u00e4nger nicht erreichbar");
-          const planes = normalizeAircraft(await response.json(), site);
+          const planes = normalizeAircraft(await response.json(), site, bounds);
           if (stopped) return;
           setAircraft(planes);
-          setFeedStatus(planes.length ? "Live" : "Keine Flieger im Umkreis");
+          setFeedStatus(planes.length ? "Live" : "Keine Flieger im Kartenausschnitt");
           setFeedOkay(true);
         }
       } catch {
@@ -77,7 +77,7 @@ export default function Home() {
 
   return <main className="flight-display">
     <header className="display-header">
-      <div className="display-heading"><span className="wordmark">JETSCREEN</span><span className="header-divider" /><span>{site.radiusKm} km Umkreis</span></div>
+      <div className="display-heading"><span className="wordmark">JETSCREEN</span><span className="header-divider" /><span>&#177;{site.radiusKm} km Nord/S&#252;d</span></div>
       <div className="display-status"><span className={`status-light ${feedOkay ? "connected" : ""}`} /><span role="status">{mode === "demo" ? "DEMO" : feedStatus}</span><time>{clock.text}</time></div>
     </header>
     {validSite ? <>

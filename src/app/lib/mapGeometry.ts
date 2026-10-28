@@ -8,7 +8,7 @@ export function mercatorLatitude(latitude: number) {
 }
 
 export function createMapBounds(latitude: number, longitude: number, radiusKm: number, aspect: number): MapBounds {
-  const halfHeight = radiusKm * 1000 * 1.28 / Math.cos(latitude * Math.PI / 180);
+  const halfHeight = radiusKm * 1000 / Math.cos(latitude * Math.PI / 180);
   const halfWidth = halfHeight * aspect;
   const centerNorth = mercatorLatitude(latitude) * EARTH_RADIUS;
   const inverse = (meters: number) => (2 * Math.atan(Math.exp(meters / EARTH_RADIUS)) - Math.PI / 2) * 180 / Math.PI;
@@ -21,8 +21,10 @@ export function createMapBounds(latitude: number, longitude: number, radiusKm: n
 }
 
 export function projectPosition(latitude: number, longitude: number, bounds: MapBounds) {
+  const centerLongitude = (bounds.west + bounds.east) / 2;
+  const wrappedLongitude = longitude + 360 * Math.round((centerLongitude - longitude) / 360);
   return {
-    x: (longitude - bounds.west) / (bounds.east - bounds.west),
+    x: (wrappedLongitude - bounds.west) / (bounds.east - bounds.west),
     y: (mercatorLatitude(bounds.north) - mercatorLatitude(latitude)) /
       (mercatorLatitude(bounds.north) - mercatorLatitude(bounds.south)),
   };

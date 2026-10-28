@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { bearingFrom, compassDirection, createMapBounds, projectPosition } from "../src/app/lib/mapGeometry";
+import { haversineDistance } from "../src/app/lib/haversine";
 
 test("map center, bounds and cardinal directions match the north-up image", () => {
   const bounds = createMapBounds(52.43657424314263, 10.595466532451821, 2, 1024 / 600);
@@ -11,6 +12,16 @@ test("map center, bounds and cardinal directions match the north-up image", () =
   assert.deepEqual(projectPosition(bounds.south, bounds.east, bounds), { x: 1, y: 1 });
   assert.ok(projectPosition(52.446, 10.595466532451821, bounds).y < center.y);
   assert.ok(projectPosition(52.43657424314263, 10.605, bounds).x > center.x);
+});
+
+test("30 km north and south produces a roughly 60 by 144 km map", () => {
+  const latitude = 52.43657424314263;
+  const longitude = 10.595466532451821;
+  const bounds = createMapBounds(latitude, longitude, 30, 1024 / 426);
+  const height = haversineDistance(bounds.south, longitude, bounds.north, longitude);
+  const width = haversineDistance(latitude, bounds.west, latitude, bounds.east);
+  assert.ok(Math.abs(height - 60) < 0.2, `height: ${height}`);
+  assert.ok(Math.abs(width - 144.23) < 0.5, `width: ${width}`);
 });
 
 test("bearings wrap correctly and describe all four directions", () => {

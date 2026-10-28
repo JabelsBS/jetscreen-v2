@@ -24,11 +24,16 @@ Open `http://localhost:3000/?demo=1` for an explicitly labelled, simulated view.
 The demo loads map tiles online but does not fetch aircraft or routes.
 `http://localhost:3000/` uses the real receiver; it never silently substitutes
 demo flights. Select a marker or callsign for details; Auto follows the nearest
-in-range aircraft.
+aircraft in the visible map.
 
 Defaults: latitude `52.43657424314263`, longitude `10.595466532451821`, radius
-`2` km. Configure the center and radius in `.env.local`; the map and aircraft
-positions use the same Web Mercator bounds. The map uses MapLibre GL JS and,
+`2` km. Configure the center and radius in `.env.local`; the radius sets the
+approximate distance from the center to the top and bottom of the map, not a
+circular aircraft filter. The display has a fixed map aspect ratio of
+1024:426, so a 30 km radius produces a map about 60 km high and 144 km wide
+near the center. All aircraft within the visible rectangular map bounds are
+shown, including those outside the configured radius to the east and west.
+The map uses MapLibre GL JS and,
 by default, OpenStreetMap's Shortbread vector tile service, without an API key.
 It requires internet access and a browser with WebGL support. If the service or
 WebGL is unavailable, the display reports the map error and continues to show
@@ -174,7 +179,7 @@ NEXT_TELEMETRY_DISABLED=1
 - `NEXT_PUBLIC_FLIGHT_DETAILS_URL`: The adsbdb API URL to fetch flight details by callsign - [hexdb.io](https://hexdb.io) is another option.
 - `NEXT_PUBLIC_CENTER_LAT`: The latitude of the center point of the map where you're tracking planes (replace with your location).
 - `NEXT_PUBLIC_CENTER_LON`: The longitude of the center point (replace with your location).
-- `NEXT_PUBLIC_RADIUS_KM`: The radius (in kilometers) for which you want to track planes around your center point.
+- `NEXT_PUBLIC_RADIUS_KM`: Approximate distance in kilometers from the center to the top and bottom of the map. Aircraft are shown across the entire rectangular map.
 - `NEXT_TELEMETRY_DISABLED`: Set to `1` to disable Next.js telemetry.
 
 ### 7. Start the Development Server
