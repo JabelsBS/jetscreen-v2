@@ -49,11 +49,14 @@ export function OnlineMap({ bounds, width, height }: Props) {
     let disposed = false;
     let failed = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
+    // A changed map bounds starts a fresh load.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStatus("Karte wird geladen");
     const initialize = async () => {
       try {
-        const { Map } = await import("maplibre-gl");
+        const { Map, setWorkerUrl } = await import("maplibre-gl");
         if (disposed || !container.current) return;
+        setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
         const instance = new Map({
           container: container.current,
           style,

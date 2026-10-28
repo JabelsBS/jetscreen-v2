@@ -12,11 +12,12 @@ type Props = {
   site: Site;
   bounds: MapBounds;
   aspect: number;
+  now: number;
   onSelect: (id: string) => void;
 };
 type Point = { x: number; y: number };
 
-export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, onSelect }: Props) {
+export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, now, onSelect }: Props) {
   const viewport = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 1024, height: 600 });
   const [trails, setTrails] = useState<Record<string, Point[]>>({});
@@ -33,6 +34,8 @@ export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, onSele
   }, [aspect]);
 
   useEffect(() => {
+    // Preserve the history of positions between aircraft updates.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTrails(current => {
       const next: Record<string, Point[]> = {};
       for (const plane of aircraft) {
@@ -76,7 +79,7 @@ export function AircraftMap({ aircraft, selectedId, site, bounds, aspect, onSele
         })}
       </svg>
       <span className="home-marker" style={{ left: `${home.x * 100}%`, top: `${home.y * 100}%` }} title="Dein Standort"><span /><span className="home-label">ZUHAUSE</span></span>
-      {planePoints.map(({ plane, point }) => <button key={plane.id} className={`aircraft-marker ${plane.id === selectedId ? "selected" : ""} ${Date.now() - plane.observedAt > 10000 ? "stale" : ""}`}
+      {planePoints.map(({ plane, point }) => <button key={plane.id} className={`aircraft-marker ${plane.id === selectedId ? "selected" : ""} ${now - plane.observedAt > 10000 ? "stale" : ""}`}
         style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
         aria-label={`${plane.callsign ?? plane.id}, ${plane.distanceKm.toFixed(1)} Kilometer entfernt`}
         aria-pressed={plane.id === selectedId} onClick={() => onSelect(plane.id)}

@@ -12,6 +12,10 @@ Use Node.js 22 LTS. Existing dependencies can be installed with `npm ci` on a
 machine with internet access. Copy `.env.example` to `.env.local` and set
 `LOCAL_ADSB_URL` to your receiver's `aircraft.json` endpoint.
 
+`npm ci` currently warns that ESLint 9 is unsupported. It is retained for
+compatibility with the Next.js ESLint plugins, which do not yet declare
+support for ESLint 10.
+
 ```bash
 npm run dev
 ```
@@ -93,9 +97,8 @@ Tests use local tile fixtures, block external browser requests, and cover the
 and position expiry. The tile fixture does not contain real neighborhood data.
 `PLAYWRIGHT_CHANNEL` can select another already provisioned browser.
 
-The inherited Next.js 13 dependency set has known security advisories. The
-display change does not upgrade the framework. Keep this development instance
-local and review a supported-version migration before public exposure.
+Keep this instance local, restrict network access to trusted devices, and review
+`npm audit` findings before exposing it publicly.
 
 ## Requirements
 To run Jetscreen, you'll need the following hardware:
@@ -211,4 +214,3 @@ To open Jetscreen in full-screen mode, run:
 ```bash
 chromium-browser --kiosk http://localhost:3000
 ```
-

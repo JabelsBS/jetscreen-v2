@@ -22,13 +22,16 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [feedStatus, setFeedStatus] = useState("Verbindung wird hergestellt");
   const [feedOkay, setFeedOkay] = useState(false);
-  const [clock, setClock] = useState("");
+  const [clock, setClock] = useState({ text: "", now: 0 });
 
   useEffect(() => {
+    // The URL is only available after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMode(new URLSearchParams(window.location.search).get("demo") === "1" ? "demo" : "live");
     const updateClock = () => {
-      setClock(new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }));
-      setAircraft(current => current.filter(plane => Date.now() - plane.observedAt <= POSITION_LIFETIME_MS));
+      const now = Date.now();
+      setClock({ text: new Date(now).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }), now });
+      setAircraft(current => current.filter(plane => now - plane.observedAt <= POSITION_LIFETIME_MS));
     };
     updateClock();
     const interval = window.setInterval(updateClock, 1000);
@@ -75,10 +78,10 @@ export default function Home() {
   return <main className="flight-display">
     <header className="display-header">
       <div className="display-heading"><span className="wordmark">JETSCREEN</span><span className="header-divider" /><span>{site.radiusKm} km Umkreis</span></div>
-      <div className="display-status"><span className={`status-light ${feedOkay ? "connected" : ""}`} /><span role="status">{mode === "demo" ? "DEMO" : feedStatus}</span><time>{clock}</time></div>
+      <div className="display-status"><span className={`status-light ${feedOkay ? "connected" : ""}`} /><span role="status">{mode === "demo" ? "DEMO" : feedStatus}</span><time>{clock.text}</time></div>
     </header>
     {validSite ? <>
-      <AircraftMap aircraft={aircraft} selectedId={selected?.id ?? null} site={site}
+      <AircraftMap aircraft={aircraft} selectedId={selected?.id ?? null} site={site} now={clock.now}
         bounds={bounds} aspect={MAP_ASPECT} onSelect={setSelectedId} />
       <SlideHolder aircraft={selected} demo={mode === "demo"} />
       <nav className="contact-strip" aria-label="Flugzeugauswahl">

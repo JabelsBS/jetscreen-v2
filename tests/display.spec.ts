@@ -89,7 +89,7 @@ test("railways and road classes are distinct and the map stays fixed", async ({ 
   let majorRoads = 0;
   let railways = 0;
   for (let index = 0; index < pixels.length; index += info.channels) {
-    const [red, green, blue] = pixels.subarray(index, index + 3);
+    const red = pixels[index], green = pixels[index + 1], blue = pixels[index + 2];
     if (red > 35 && red < 75 && green > red && Math.abs(green - blue) < 5) minorRoads++;
     if (red >= 75 && green > red && Math.abs(green - blue) < 5) majorRoads++;
     if (red > 55 && red > green + 3 && green > blue + 3) railways++;
@@ -168,7 +168,9 @@ test("receiver outages expire old positions rather than show ghosts indefinitely
   await page.goto("/");
   await expect(page.locator(".aircraft-marker")).toHaveCount(1);
   failed = true;
-  await page.clock.fastForward(32000);
+  await page.clock.fastForward(11000);
+  await expect(page.locator(".aircraft-marker")).toHaveClass(/stale/);
+  await page.clock.fastForward(21000);
   await expect(page.locator(".aircraft-marker")).toHaveCount(0);
   await expect(page.locator(".display-status")).toContainText("Empf\u00e4nger nicht erreichbar");
 });
